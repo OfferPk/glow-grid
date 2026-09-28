@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/glow-grid/favicon.svg" />
+    <link rel="apple-touch-icon" href="/glow-grid/icons/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="description" content="GlowGrid — neon block-clear puzzle. Place shapes, clear rows & columns, ride combos. Offline PWA." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/glow-grid/manifest.webmanifest" />
+    <title>GlowGrid</title>
+    <script type="module" crossorigin src="/glow-grid/assets/index-coug_oEF.js"></script>
+    <link rel="stylesheet" crossorigin href="/glow-grid/assets/index-9iRGmdEm.css">
+  </head>
+  <body>
+    <div id="app">
+      <!-- HOME -->
+      <section class="screen" data-screen="home">
+        <div class="panel home-panel">
+          <h1 class="logo">GlowGrid</h1>
+          <p class="tagline">Neon blocks. Clear rows &amp; columns. Ride the combo.</p>
+          <p class="best-line">Best: <strong id="home-best">0</strong></p>
+          <button type="button" class="btn primary" id="btn-endless">Play Endless</button>
+          <button type="button" class="btn secondary" id="btn-daily">
+            <span id="daily-label">Daily Challenge</span>
+          </button>
+          <button type="button" class="btn ghost" id="btn-mute-home">🔊 Sound</button>
+          <button type="button" class="btn ghost" id="btn-howto">How to play</button>
+        </div>
+      </section>
+
+      <!-- HOW TO -->
+      <section class="screen" data-screen="howto" hidden>
+        <div class="panel">
+          <h2>How to play</h2>
+          <ul class="howto-list">
+            <li><strong>Place</strong> — drag a piece onto the grid, or tap piece then tap a cell.</li>
+            <li><strong>Clear</strong> — fill a full row or column (no gravity — blocks stay put).</li>
+            <li><strong>Combos</strong> — clear on consecutive placements to raise multiplier (up to ×5).</li>
+          </ul>
+          <button type="button" class="btn primary" id="btn-howto-ok">Got it</button>
+        </div>
+      </section>
+
+      <!-- PLAY -->
+      <section class="screen" data-screen="play" hidden>
+        <header id="hud" class="hud">
+          <div class="hud-stat"><span class="lbl">Score</span><span data-score>0</span></div>
+          <div class="hud-stat"><span class="lbl">Best</span><span data-best>0</span></div>
+          <div class="hud-stat"><span class="lbl">Combo</span><span data-combo>—</span></div>
+          <div class="hud-stat"><span class="badge" data-mode>Endless</span></div>
+          <button type="button" class="icon-btn" id="btn-mute" aria-label="Mute">🔊</button>
+          <button type="button" class="icon-btn" id="btn-home" aria-label="Home">⌂</button>
+        </header>
+        <div class="board-wrap">
+          <canvas id="board" width="400" height="400" aria-label="Game board"></canvas>
+          <div id="combo-pop" class="combo-pop" aria-hidden="true"></div>
+        </div>
+        <div class="tray-bar">
+          <canvas data-tray="0" width="88" height="88" aria-label="Piece 1"></canvas>
+          <canvas data-tray="1" width="88" height="88" aria-label="Piece 2"></canvas>
+          <canvas data-tray="2" width="88" height="88" aria-label="Piece 3"></canvas>
+          <button type="button" id="btn-rotate" title="Rotate (R)">↻ Rotate</button>
+        </div>
+        <div id="gameover" class="gameover" hidden>
+          <div class="panel">
+            <h2>Game Over</h2>
+            <div data-go-newbest class="new-best" hidden>NEW BEST</div>
+            <p class="go-score" data-go-score>0</p>
+            <p class="go-meta">Best <span data-go-best>0</span> · Peak combo ×<span data-go-peak>0</span></p>
+            <button type="button" class="btn primary" id="btn-retry">Retry</button>
+            <button type="button" class="btn secondary" id="btn-share">Share</button>
+            <button type="button" class="btn ghost" id="btn-go-home">Home</button>
+          </div>
+        </div>
+      </section>
+
+      <div id="a2hs" class="a2hs" hidden>
+        <span>Install GlowGrid: browser menu → <strong>Add to Home Screen</strong></span>
+        <button type="button" id="a2hs-ok" class="btn tiny">OK</button>
+      </div>
+    </div>
+  </body>
+</html>
