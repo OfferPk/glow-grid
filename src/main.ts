@@ -3,11 +3,14 @@ import { createGame, type Engine, type GameState } from './game/engine';
 import { dailyKeyKarachi } from './game/rng';
 import {
   getBestScore,
+  getDailyRecord,
   getSettings,
+  getStreak,
   isOnboarded,
   setOnboarded,
   setSettings,
 } from './game/persist';
+import { homeDailyCta } from './ui/homeDaily';
 import {
   drawBoard,
   drawTraySlot,
@@ -288,7 +291,10 @@ function toggleMute(): void {
 document.getElementById('btn-mute')!.addEventListener('click', toggleMute);
 document.getElementById('btn-mute-home')!.addEventListener('click', toggleMute);
 document.getElementById('btn-endless')!.addEventListener('click', () => startMode('endless'));
-document.getElementById('btn-daily')!.addEventListener('click', () => startMode('daily'));
+document.getElementById('btn-daily')!.addEventListener('click', () => {
+  const action = (document.getElementById('btn-daily') as HTMLButtonElement).dataset.action;
+  startMode(action === 'endless' ? 'endless' : 'daily');
+});
 document.getElementById('btn-howto')!.addEventListener('click', () => showScreen('howto'));
 document.getElementById('btn-howto-ok')!.addEventListener('click', () => {
   setOnboarded(true);
@@ -332,8 +338,26 @@ document.getElementById('btn-share')!.addEventListener('click', () => {
 function refreshHome(): void {
   const best = document.getElementById('home-best');
   if (best) best.textContent = String(getBestScore());
+  const key = dailyKeyKarachi();
+  const finished = Boolean(getDailyRecord(key)?.finished);
+  const cta = homeDailyCta(key, finished);
   const daily = document.getElementById('daily-label');
-  if (daily) daily.textContent = `Daily # ${dailyKeyKarachi()} (PKT)`;
+  if (daily) daily.textContent = cta.label;
+  const meta = document.getElementById('daily-meta');
+  if (meta) meta.textContent = cta.meta;
+  const dailyBtn = document.getElementById('btn-daily') as HTMLButtonElement | null;
+  if (dailyBtn) dailyBtn.dataset.action = cta.action;
+  const streak = getStreak();
+  const streakEl = document.getElementById('home-streak');
+  const streakCount = document.getElementById('streak-count');
+  if (streakEl && streakCount) {
+    if (streak.count >= 1) {
+      streakEl.hidden = false;
+      streakCount.textContent = String(streak.count);
+    } else {
+      streakEl.hidden = true;
+    }
+  }
   updateMuteButtons();
 }
 

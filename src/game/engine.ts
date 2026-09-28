@@ -24,6 +24,7 @@ import {
   getDailyRecord,
   incrementGamesPlayed,
   saveDailyRecord,
+  recordDailyComplete,
 } from './persist.ts';
 
 export type GameMode = 'endless' | 'daily';
@@ -270,6 +271,7 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
         } else if (mode === 'daily' && dailyKey) {
           // Daily only touches glowgrid:v1:daily:{key} — never setBestScore / endless key.
           saveDailyRecord(dailyKey, state.score, true);
+          recordDailyComplete(dailyKey);
           state.bestScore = Math.max(state.bestScore, state.score);
         }
         incrementGamesPlayed();

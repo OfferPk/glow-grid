@@ -44,7 +44,19 @@ html, body {
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .tagline { color: var(--muted); margin: 0 0 0.8rem; }
-.best-line { color: var(--cyan); margin: 0 0 1rem; }
+.best-line { color: var(--cyan); margin: 0 0 0.35rem; }
+.streak-line {
+  margin: 0 0 0.85rem;
+  color: var(--magenta);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.streak-line strong { color: var(--magenta); }
+.daily-meta {
+  margin: 0.15rem 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
 .btn {
   display: block; width: 100%; margin: 0.4rem 0; padding: 0.85rem 1rem;
   min-height: 48px; border: none; border-radius: 12px;

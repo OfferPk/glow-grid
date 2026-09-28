@@ -1,26 +1,35 @@
 # GlowGrid — Status
 
-**Status:** READY_FOR_QA_R3  
-**Updated:** 2026-09-21T18:31:07+05:00 (PKT)  
-**Assignee:** Software Engineer 4
+**Status:** READY_FOR_QA  
+**Updated:** 2026-09-28T18:15:32+05:00 (PKT)  
+**Version:** 0.1.0 + Unreleased improve (daily complete UX + streak + docs)  
+**Assignee:** Software Engineer 4  
+**Project ID:** proj_glowgrid_001  
+**Shipped:** v0.1.0 (QA **PASS** R3 2026-09-21; Security **PASS**)  
+**Pages base:** `/glow-grid/`
 
 ## Gates
 
 | Gate | Result |
 |------|--------|
-| `npm test` | **29/29 passed** (engine + drag window tracking + roundRect clamp) |
-| `npm run build` | **green** (tsc + vite + PWA SW; no `icons.svg` in precache) |
+| Prior R3 QA | **PASS** (see `QA-REPORT-R3.md` / `inbox/QA-NOTE-glow-grid-R3.md`) |
+| Prior Security | **PASS** (`SECURITY-REPORT.md`) |
+| `npm test` | **39/39 passed** (29 prior + 3 homeDaily + 7 streak) |
+| `npm run build` | **green** (tsc + vite + PWA SW; base `/glow-grid/`) |
 
-## QA fixes (R3 — 2026-09-21)
+## Prior R3 (SHIPPED v0.1.0) — cleared
 
-1. **GG-001 A2HS** — Shown only on Home (`maybeShowA2hs`); hidden on Play/Howto; CSS `z-index: 3` under `.tray-bar` / `#btn-rotate` (`z-index: 8`).
-2. **GG-002 Drag** — No tray `setPointerCapture`; `attachWindowPointerDrag(window, …)` with **capture-phase** `pointermove`/`up`/`cancel`; drop via `resolveTrayBoardDrop`. Tap-tap kept. Unit-tested.
-3. **GG-003 roundRect** — `rr = max(0, min(r, w/2, h/2))`; empty `beginPath` when `w|h < 1`; skip `drawBoard` when `cell < 2`.
-4. **GG-004/005 Icons** — 4-tile SVG mark rasterized to `icon-192.png` / `icon-512.png` + `icon-512-maskable.png`; deleted leftover `public/icons.svg`.
-5. **Daily vs endless bestScore** — Kept: endless → `glowgrid:v1:bestScore`; daily → `glowgrid:v1:daily:{key}` only (engine + isolation tests).
+STATUS was stuck on `READY_FOR_QA_R3` after QA PASS. Documented here: R3 + Security both **PASS**. Publish/monitor for v0.1.0 remains the ship path; **this Unreleased improve pack** needs a fresh QA pass before the next tag.
+
+## Unreleased (this IMPROVE 1808)
+
+1. **Daily complete UX on Home** — finished → `Daily ✓ · Play endless` + midnight teaser; click → endless; incomplete keeps Challenge + `Daily # {key} (PKT)`
+2. **Daily streak (PKT)** — `glowgrid:v1:streak`; Home `Streak: N` when ≥ 1; break only on next complete after a skip
+3. **Docs** — CHANGELOG `[0.1.0]` + Unreleased; STATUS READY_FOR_QA for this pack
 
 ## Notes
 
-- Original neon IP; no Block Blast assets  
-- No git push / GitHub publish (per brief)  
 - Path: `/workspace/factory/projects/glow-grid`
+- No ads / IAP / new piece sets / online boards
+- Do not change `dailyKeyKarachi` / daily seed math
+- No git push / GitHub PR (per brief)
