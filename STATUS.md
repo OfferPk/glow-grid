@@ -1,11 +1,11 @@
 # GlowGrid — Status
 
-**Status:** READY_FOR_QA  
-**Updated:** 2026-09-28T18:15:32+05:00 (PKT)  
-**Version:** 0.1.0 + Unreleased improve (daily complete UX + streak + docs)  
+**Status:** SHIPPED  
+**Updated:** 2026-09-28T18:20:00+05:00 (PKT)  
+**Version:** 0.1.1  
 **Assignee:** Software Engineer 4  
 **Project ID:** proj_glowgrid_001  
-**Shipped:** v0.1.0 (QA **PASS** R3 2026-09-21; Security **PASS**)  
+**Shipped:** v0.1.1 (QA **PASS** IMPROVE 2026-09-28; Security **PASS** IMPROVE 2026-09-28)  
 **Pages base:** `/glow-grid/`
 
 ## Gates
@@ -19,17 +19,17 @@
 
 ## Prior R3 (SHIPPED v0.1.0) — cleared
 
-STATUS was stuck on `READY_FOR_QA_R3` after QA PASS. Documented here: R3 + Security both **PASS**. Publish/monitor for v0.1.0 remains the ship path; **this Unreleased improve pack** needs a fresh QA pass before the next tag.
+STATUS was stuck on `READY_FOR_QA_R3` after QA PASS. Documented here: R3 + Security both **PASS**. The Unreleased improve pack is dual-cleared and shipped as v0.1.1.
 
-## Unreleased (this IMPROVE 1808)
+## Released v0.1.1 (IMPROVE 1808)
 
 1. **Daily complete UX on Home** — finished → `Daily ✓ · Play endless` + midnight teaser; click → endless; incomplete keeps Challenge + `Daily # {key} (PKT)`
 2. **Daily streak (PKT)** — `glowgrid:v1:streak`; Home `Streak: N` when ≥ 1; break only on next complete after a skip
-3. **Docs** — CHANGELOG `[0.1.0]` + Unreleased; STATUS READY_FOR_QA for this pack
+3. **Docs** — CHANGELOG `[0.1.1]` ship notes; STATUS and gate reports recorded
 
 ## Notes
 
 - Path: `/workspace/factory/projects/glow-grid`
 - No ads / IAP / new piece sets / online boards
 - Do not change `dailyKeyKarachi` / daily seed math
-- No git push / GitHub PR (per brief)
+- Published to GitHub main, tag `v0.1.1`, GitHub Release, and Pages

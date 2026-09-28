@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [0.1.1] — 2026-09-28
+
 ### Daily complete UX on Home
 - When today’s PKT daily is `finished`, Home `#daily-label` → `Daily ✓ · Play endless`; meta `Next daily after midnight PKT`; click starts **endless** (no same-seed re-entry)
 - Incomplete: keep `Daily Challenge` + `Daily # {key} (PKT)` ready state
