@@ -4,7 +4,11 @@ import {
   saveDailyRecord,
   getDailyRecord,
 } from '../src/game/persist';
-import { homeDailyCta } from '../src/ui/homeDaily';
+import { dailyKeyKarachi } from '../src/game/rng';
+import {
+  homeDailyCta,
+  millisecondsUntilNextKarachiMidnight,
+} from '../src/ui/homeDaily';
 
 /** Minimal localStorage for node vitest env. */
 function installMemoryStorage(): void {
@@ -58,6 +62,27 @@ describe('home daily CTA after complete', () => {
     expect(cta.label).toBe('Daily ✓ · Play endless');
     expect(cta.meta).toBe('Next daily after midnight PKT');
     expect(cta.action).toBe('endless');
+  });
+
+  it('offers the new Daily after the previous PKT day was completed', () => {
+    saveDailyRecord('2026-09-30', 300, true);
+    const currentKey = dailyKeyKarachi(new Date('2026-09-30T19:01:00.000Z'));
+    expect(currentKey).toBe('2026-10-01');
+    expect(getDailyRecord(currentKey)).toBeNull();
+
+    const cta = homeDailyCta(currentKey, Boolean(getDailyRecord(currentKey)?.finished));
+    expect(cta.label).toBe('Daily Challenge');
+    expect(cta.meta).toBe('Daily # 2026-10-01 (PKT)');
+    expect(cta.action).toBe('daily');
+  });
+
+  it('schedules the Home refresh at the next Karachi midnight', () => {
+    expect(
+      millisecondsUntilNextKarachiMidnight(new Date('2026-09-30T18:59:00.000Z')),
+    ).toBe(60_000);
+    expect(
+      millisecondsUntilNextKarachiMidnight(new Date('2026-09-30T19:00:00.000Z')),
+    ).toBe(24 * 60 * 60 * 1000);
   });
 
   it('refreshHome case: finished from persist drives completed CTA', () => {

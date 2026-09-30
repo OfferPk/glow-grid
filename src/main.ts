@@ -10,7 +10,10 @@ import {
   setOnboarded,
   setSettings,
 } from './game/persist';
-import { homeDailyCta } from './ui/homeDaily';
+import {
+  homeDailyCta,
+  millisecondsUntilNextKarachiMidnight,
+} from './ui/homeDaily';
 import { getHowtoReturnScreen, type HowtoEntry } from './ui/howtoNavigation';
 import {
   drawBoard,
@@ -362,6 +365,7 @@ document.getElementById('btn-mute')!.addEventListener('click', toggleMute);
 document.getElementById('btn-mute-home')!.addEventListener('click', toggleMute);
 document.getElementById('btn-endless')!.addEventListener('click', () => startMode('endless'));
 document.getElementById('btn-daily')!.addEventListener('click', () => {
+  refreshHome();
   const action = (document.getElementById('btn-daily') as HTMLButtonElement).dataset.action;
   startMode(action === 'endless' ? 'endless' : 'daily');
 });
@@ -435,6 +439,22 @@ function refreshHome(): void {
   updateMuteButtons();
 }
 
+function refreshHomeIfVisible(): void {
+  const home = document.querySelector<HTMLElement>('[data-screen="home"]');
+  if (!document.hidden && home && !home.hidden) refreshHome();
+}
+
+function scheduleDailyHomeRefresh(): void {
+  const delay = millisecondsUntilNextKarachiMidnight(new Date());
+  window.setTimeout(() => {
+    refreshHomeIfVisible();
+    scheduleDailyHomeRefresh();
+  }, delay + 25);
+}
+
+window.addEventListener('focus', refreshHomeIfVisible);
+document.addEventListener('visibilitychange', refreshHomeIfVisible);
+
 const a2hs = document.getElementById('a2hs')!;
 document.getElementById('a2hs-ok')!.addEventListener('click', () => {
   a2hs.hidden = true;
@@ -482,6 +502,7 @@ window.addEventListener('resize', layout);
 refreshHome();
 showScreen('home');
 maybeShowA2hs();
+scheduleDailyHomeRefresh();
 
 async function registerSW(): Promise<void> {
   try {
