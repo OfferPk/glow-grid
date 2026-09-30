@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### First-run tutorial handoff
+- Tapping **Got it** after starting Endless or Daily now continues directly into that game; opening How to play from Home still returns Home.
+- Added regression coverage for both tutorial entry paths.
+
 ## [0.1.1] — 2026-09-28
 
 ### Daily complete UX on Home

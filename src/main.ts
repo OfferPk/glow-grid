@@ -11,6 +11,7 @@ import {
   setSettings,
 } from './game/persist';
 import { homeDailyCta } from './ui/homeDaily';
+import { getHowtoReturnScreen, type HowtoEntry } from './ui/howtoNavigation';
 import {
   drawBoard,
   drawTraySlot,
@@ -30,6 +31,7 @@ let hover: HoverPreview = null;
 let muted = getSettings().muted;
 let dragTray: number | null = null;
 let pointerPlaced = false;
+let howtoEntry: HowtoEntry = 'home';
 
 const board = document.getElementById('board') as HTMLCanvasElement;
 const hud = document.getElementById('hud')!;
@@ -134,6 +136,7 @@ function startMode(mode: 'endless' | 'daily'): void {
   showScreen('play');
   layout();
   if (!isOnboarded()) {
+    howtoEntry = 'first-run-play';
     showScreen('howto');
   }
 }
@@ -295,11 +298,15 @@ document.getElementById('btn-daily')!.addEventListener('click', () => {
   const action = (document.getElementById('btn-daily') as HTMLButtonElement).dataset.action;
   startMode(action === 'endless' ? 'endless' : 'daily');
 });
-document.getElementById('btn-howto')!.addEventListener('click', () => showScreen('howto'));
+document.getElementById('btn-howto')!.addEventListener('click', () => {
+  howtoEntry = 'home';
+  showScreen('howto');
+});
 document.getElementById('btn-howto-ok')!.addEventListener('click', () => {
+  const destination = getHowtoReturnScreen(howtoEntry);
+  howtoEntry = 'home';
   setOnboarded(true);
-  const playEl = document.querySelector<HTMLElement>('[data-screen="play"]');
-  if (playEl && !playEl.hidden) {
+  if (destination === 'play') {
     hideA2hs();
     showScreen('play');
     layout();
