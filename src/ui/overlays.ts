@@ -14,7 +14,7 @@ export function fillGameOver(overlay: HTMLElement, state: GameState): void {
   if (score) score.textContent = String(state.score);
   if (best) best.textContent = String(state.bestScore);
   if (peak) peak.textContent = String(state.comboPeak);
-  const isNew = state.score > 0 && state.score >= state.bestScore;
+  const isNew = state.score > 0 && state.newBest;
   if (badge) badge.hidden = !isNew;
 }
 

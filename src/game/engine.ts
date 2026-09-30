@@ -37,6 +37,7 @@ export type GameState = {
   combo: number;
   comboPeak: number;
   bestScore: number;
+  newBest: boolean;
   status: GameStatus;
   mode: GameMode;
   dailyKey: string | null;
@@ -252,6 +253,7 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
     combo: 0,
     comboPeak: 0,
     bestScore: initialBest(),
+    newBest: false,
     status: 'playing',
     mode,
     dailyKey,
@@ -341,11 +343,12 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
       }
 
       const comboPeak = Math.max(state.comboPeak, newCombo);
+      const score = state.score + scoreDelta;
       state = {
         ...state,
         grid,
         tray: nextTray,
-        score: state.score + scoreDelta,
+        score,
         combo: newCombo,
         comboPeak,
         piecesPlaced: state.piecesPlaced + 1,
@@ -355,7 +358,8 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
           cellsCleared > 0
             ? { rows, cols, cellsCleared, mult }
             : { rows: [], cols: [], cellsCleared: 0, mult: 1 },
-        bestScore: Math.max(state.bestScore, state.score + scoreDelta),
+        bestScore: Math.max(state.bestScore, score),
+        newBest: state.newBest || score > state.bestScore,
       };
 
       // Persist live bests with mode-isolated keys (endless vs daily).
@@ -400,6 +404,7 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
         combo: 0,
         comboPeak: 0,
         bestScore: restartedBest(),
+        newBest: false,
         status: 'playing',
         mode,
         dailyKey,
