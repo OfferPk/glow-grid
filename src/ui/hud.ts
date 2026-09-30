@@ -1,5 +1,8 @@
 import type { GameState } from '../game/engine';
 
+const COMBO_POP_DURATION_MS = 700;
+const reducedMotionTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
 export function updateHud(root: HTMLElement, state: GameState): void {
   const score = root.querySelector('[data-score]') as HTMLElement | null;
   const best = root.querySelector('[data-best]') as HTMLElement | null;
@@ -23,8 +26,22 @@ export function updateHud(root: HTMLElement, state: GameState): void {
 }
 
 export function showComboPop(el: HTMLElement, text: string): void {
+  const existingTimer = reducedMotionTimers.get(el);
+  if (existingTimer !== undefined) {
+    clearTimeout(existingTimer);
+    reducedMotionTimers.delete(el);
+  }
   el.textContent = text;
   el.classList.remove('pop');
   void el.offsetWidth;
   el.classList.add('pop');
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    reducedMotionTimers.set(
+      el,
+      setTimeout(() => {
+        el.classList.remove('pop');
+        reducedMotionTimers.delete(el);
+      }, COMBO_POP_DURATION_MS),
+    );
+  }
 }

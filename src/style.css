@@ -144,6 +144,13 @@ html, body {
   opacity: 0; pointer-events: none; z-index: 5;
 }
 .combo-pop.pop { animation: comboPop 0.7s ease forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .combo-pop.pop {
+    animation: none;
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
 @keyframes comboPop {
   0% { opacity: 0; transform: translate(-50%, 12px); }
   25% { opacity: 1; transform: translate(-50%, -8px); }
