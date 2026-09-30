@@ -23,7 +23,7 @@ import {
   type HoverPreview,
 } from './render/canvas';
 import { showComboPop, updateHud } from './ui/hud';
-import { fillGameOver, showScreen, tryShare } from './ui/overlays';
+import { bindRetryButton, fillGameOver, showScreen, tryShare } from './ui/overlays';
 import { attachWindowPointerDrag, resolveTrayBoardDrop } from './input/dragPlace';
 import { centerGridCursor, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
 
@@ -394,7 +394,7 @@ document.getElementById('btn-home')!.addEventListener('click', () => {
   maybeShowA2hs();
 });
 
-document.getElementById('btn-retry')!.addEventListener('click', () => {
+bindRetryButton(document.getElementById('btn-retry')!, board, () => {
   engine.restart();
   selectedTray = null;
   gameover.hidden = true;

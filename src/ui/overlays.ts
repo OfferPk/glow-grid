@@ -6,6 +6,18 @@ export function showScreen(id: string): void {
   });
 }
 
+/** Run Retry, then return focus to the playable board after the overlay is hidden. */
+export function bindRetryButton(
+  retryButton: HTMLElement,
+  board: HTMLElement,
+  onRetry: () => void,
+): void {
+  retryButton.addEventListener('click', () => {
+    onRetry();
+    board.focus();
+  });
+}
+
 export function fillGameOver(overlay: HTMLElement, state: GameState): void {
   const score = overlay.querySelector('[data-go-score]');
   const best = overlay.querySelector('[data-go-best]');

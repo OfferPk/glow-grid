@@ -1,9 +1,10 @@
+// @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest';
 import { createGame, type Engine, type GameState } from '../src/game/engine.ts';
 import { GRID_SIZE, PIECE_DEFS } from '../src/game/pieces.ts';
-import { getGamesPlayed } from '../src/game/persist.ts';
+import { getBestScore, getGamesPlayed } from '../src/game/persist.ts';
 import { mulberry32 } from '../src/game/rng.ts';
-import { fillGameOver } from '../src/ui/overlays.ts';
+import { bindRetryButton, fillGameOver } from '../src/ui/overlays.ts';
 
 function installSyntheticStorage(): Map<string, string> {
   const store = new Map<string, string>();
@@ -122,5 +123,61 @@ describe('synthetic Endless game-over → Retry audit', () => {
     const overlay = makeOverlay();
     fillGameOver(overlay.element, tiedEnd);
     expect(overlay.badge.hidden).toBe(true);
+  });
+
+  it('returns focus to the board on Retry and leaves records and Daily state unchanged', () => {
+    const store = installSyntheticStorage();
+    const engine = createGame({ mode: 'endless', rng: mulberry32(7) });
+    const gameOver = finishSyntheticRun(engine);
+    expect(gameOver.status).toBe('gameover');
+    expect(gameOver.score).toBe(0);
+    expect(getGamesPlayed()).toBe(1);
+    expect(getBestScore()).toBe(0);
+    expect(
+      [...store.keys()].some((key) => key.includes(':daily:') || key.endsWith(':streak')),
+    ).toBe(false);
+
+    document.body.innerHTML = `
+      <section data-screen="play">
+        <header><button id="mute">Mute</button><button id="home">Home</button></header>
+        <canvas id="board" tabindex="0"></canvas>
+        <div class="tray-bar">
+          <canvas data-tray="0" tabindex="0"></canvas>
+          <canvas data-tray="1" tabindex="0"></canvas>
+          <canvas data-tray="2" tabindex="0"></canvas>
+          <button id="rotate">Rotate</button>
+        </div>
+        <div id="gameover"><button id="retry" type="button">Retry</button></div>
+      </section>`;
+    const board = document.getElementById('board')!;
+    const retryButton = document.getElementById('retry')!;
+    const gameover = document.getElementById('gameover')!;
+    const beforeRetry = [...store.entries()].sort(([a], [b]) => a.localeCompare(b));
+
+    bindRetryButton(retryButton, board, () => {
+      engine.restart();
+      gameover.hidden = true;
+    });
+    retryButton.focus();
+    retryButton.click();
+
+    expect(engine.getState().status).toBe('playing');
+    expect(document.activeElement).toBe(board);
+    const tabStops = [...document.querySelectorAll<HTMLElement>('button, [tabindex]')].filter(
+      (element) =>
+        element.tabIndex >= 0 &&
+        !element.hasAttribute('disabled') &&
+        !element.closest('[hidden]'),
+    );
+    expect(tabStops[tabStops.indexOf(board) + 1]).toBe(
+      document.querySelector('[data-tray="0"]'),
+    );
+
+    expect([...store.entries()].sort(([a], [b]) => a.localeCompare(b))).toEqual(beforeRetry);
+    expect(getGamesPlayed()).toBe(1);
+    expect(getBestScore()).toBe(0);
+    expect(
+      [...store.keys()].some((key) => key.includes(':daily:') || key.endsWith(':streak')),
+    ).toBe(false);
   });
 });
