@@ -22,9 +22,11 @@ import {
 import { showComboPop, updateHud } from './ui/hud';
 import { fillGameOver, showScreen, tryShare } from './ui/overlays';
 import { attachWindowPointerDrag, resolveTrayBoardDrop } from './input/dragPlace';
+import { centerGridCursor, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
 
 let engine: Engine = createGame({ mode: 'endless' });
 let selectedTray: number | null = null;
+let keyboardCursor = centerGridCursor();
 let cellSize = 40;
 let flash: ClearFlash | null = null;
 let hover: HoverPreview = null;
@@ -36,6 +38,7 @@ let howtoEntry: HowtoEntry = 'home';
 const board = document.getElementById('board') as HTMLCanvasElement;
 const hud = document.getElementById('hud')!;
 const comboPop = document.getElementById('combo-pop')!;
+const keyboardStatus = document.getElementById('keyboard-status')!;
 const gameover = document.getElementById('gameover')!;
 const trayCanvases = [
   ...document.querySelectorAll<HTMLCanvasElement>('[data-tray]'),
@@ -77,6 +80,8 @@ function render(): void {
   const ctx = board.getContext('2d')!;
   drawBoard(ctx, st, cellSize, flash, hover, performance.now());
   trayCanvases.forEach((cv, i) => {
+    cv.setAttribute('aria-pressed', String(selectedTray === i));
+    cv.setAttribute('aria-disabled', String(st.tray[i] === null));
     drawTraySlot(cv, st.tray[i]!, selectedTray === i);
   });
   updateHud(hud, st);
@@ -123,12 +128,30 @@ function attemptPlace(trayIndex: number, row: number, col: number): boolean {
   return false;
 }
 
+function announceKeyboard(message: string): void {
+  keyboardStatus.textContent = message;
+}
+
+/** Keyboard piece selection moves focus to the board for immediate placement navigation. */
+function selectTrayForKeyboard(index: number): void {
+  if (state().status !== 'playing' || !state().tray[index]) return;
+  selectedTray = index;
+  keyboardCursor = centerGridCursor();
+  hover = { trayIndex: index, row: keyboardCursor.row, col: keyboardCursor.col };
+  render();
+  board.focus();
+  announceKeyboard(
+    `Piece ${index + 1} selected. Preview at row ${keyboardCursor.row + 1}, column ${keyboardCursor.col + 1}. Use arrow keys to move it, then Enter or Space to place.`,
+  );
+}
+
 function startMode(mode: 'endless' | 'daily'): void {
   engine = createGame({
     mode,
     dailyKey: mode === 'daily' ? dailyKeyKarachi() : undefined,
   });
   selectedTray = null;
+  keyboardCursor = centerGridCursor();
   gameover.hidden = true;
   flash = null;
   hover = null;
@@ -246,6 +269,37 @@ board.addEventListener('pointercancel', () => {
   render();
 });
 
+board.addEventListener('keydown', (e) => {
+  if (state().status !== 'playing' || selectedTray === null || !state().tray[selectedTray]) return;
+  const nextCursor = moveGridCursor(keyboardCursor, e.key);
+  if (nextCursor) {
+    e.preventDefault();
+    keyboardCursor = nextCursor;
+    hover = {
+      trayIndex: selectedTray,
+      row: keyboardCursor.row,
+      col: keyboardCursor.col,
+    };
+    render();
+    announceKeyboard(`Placement preview at row ${keyboardCursor.row + 1}, column ${keyboardCursor.col + 1}.`);
+    return;
+  }
+  if (isConfirmKey(e.key)) {
+    e.preventDefault();
+    const trayIndex = selectedTray;
+    const placed = attemptPlace(trayIndex, keyboardCursor.row, keyboardCursor.col);
+    if (placed) {
+      hover = null;
+      render();
+    }
+    announceKeyboard(
+      placed
+        ? `Piece ${trayIndex + 1} placed.`
+        : `That placement does not fit. Move the preview with the arrow keys and try again.`,
+    );
+  }
+});
+
 // Tray: pointerdown starts window-tracked drag; tap still selects.
 trayCanvases.forEach((cv, i) => {
   cv.addEventListener('pointerdown', (e) => {
@@ -257,6 +311,11 @@ trayCanvases.forEach((cv, i) => {
     if (state().status !== 'playing' || !state().tray[i]) return;
     selectedTray = i;
     render();
+  });
+  cv.addEventListener('keydown', (e) => {
+    if (!isConfirmKey(e.key)) return;
+    e.preventDefault();
+    selectTrayForKeyboard(i);
   });
 });
 
@@ -274,13 +333,21 @@ document.getElementById('btn-rotate')!.addEventListener('click', () => {
 
 window.addEventListener('keydown', (e) => {
   if (e.key === 'r' || e.key === 'R') {
+    const playScreen = document.querySelector<HTMLElement>('[data-screen="play"]');
+    if (playScreen?.hidden || state().status !== 'playing') return;
     if (selectedTray === null) {
       const first = state().tray.findIndex((s) => s != null);
-      if (first >= 0) selectedTray = first;
+      if (first >= 0) {
+        selectedTray = first;
+        keyboardCursor = centerGridCursor();
+        hover = { trayIndex: first, row: keyboardCursor.row, col: keyboardCursor.col };
+      }
     }
     if (selectedTray !== null) {
+      e.preventDefault();
       engine.rotateTraySlot(selectedTray);
       render();
+      announceKeyboard(`Piece ${selectedTray + 1} rotated.`);
     }
   }
 });

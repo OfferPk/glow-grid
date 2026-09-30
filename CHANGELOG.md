@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Keyboard placement (GG-008)
+- Keyboard users can focus a tray piece, move its board preview with the arrow keys, and place it with Enter or Space; R rotates the selected piece.
+- Added focus indicators, live placement announcements, and regression tests for cursor movement and confirmation keys.
+
 ### First-run tutorial handoff
 - Tapping **Got it** after starting Endless or Daily now continues directly into that game; opening How to play from Home still returns Home.
 - Added regression coverage for both tutorial entry paths.
