@@ -29,6 +29,11 @@ export function moveGridCursor(
   };
 }
 
+/** Escape cancels the active tray-piece selection. */
+export function isCancelKey(key: string): boolean {
+  return key === 'Escape';
+}
+
 /** Enter and Space confirm tray selection or place the selected piece. */
 export function isConfirmKey(key: string): boolean {
   return key === 'Enter' || key === ' ' || key === 'Spacebar';

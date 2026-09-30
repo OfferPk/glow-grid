@@ -31,7 +31,7 @@ import {
   tryShare,
 } from './ui/overlays';
 import { attachWindowPointerDrag, resolveTrayBoardDrop } from './input/dragPlace';
-import { centerGridCursor, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
+import { centerGridCursor, isCancelKey, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
 
 let engine: Engine = createGame({ mode: 'endless' });
 let selectedTray: number | null = null;
@@ -280,6 +280,16 @@ board.addEventListener('pointercancel', () => {
 
 board.addEventListener('keydown', (e) => {
   if (state().status !== 'playing' || selectedTray === null || !state().tray[selectedTray]) return;
+  if (isCancelKey(e.key)) {
+    e.preventDefault();
+    const trayIndex = selectedTray;
+    selectedTray = null;
+    hover = null;
+    render();
+    trayCanvases[trayIndex]?.focus();
+    announceKeyboard('Piece selection cancelled. Choose a piece from the tray to continue.');
+    return;
+  }
   const nextCursor = moveGridCursor(keyboardCursor, e.key);
   if (nextCursor) {
     e.preventDefault();

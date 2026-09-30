@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { centerGridCursor, isConfirmKey, moveGridCursor } from '../src/input/keyboardPlace';
+import { centerGridCursor, isCancelKey, isConfirmKey, moveGridCursor } from '../src/input/keyboardPlace';
 
 describe('keyboard board placement', () => {
   it('starts the preview near the center of the 8×8 board', () => {
@@ -28,6 +28,11 @@ describe('keyboard board placement', () => {
 
   it.each(['Enter', ' ', 'Spacebar'])('accepts %j as a confirm key', (key) => {
     expect(isConfirmKey(key)).toBe(true);
+  });
+
+  it('accepts Escape as a selection-cancel key', () => {
+    expect(isCancelKey('Escape')).toBe(true);
+    expect(isCancelKey('Enter')).toBe(false);
   });
 
   it('does not treat unrelated keys as confirmation', () => {
