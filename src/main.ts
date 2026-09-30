@@ -23,7 +23,13 @@ import {
   type HoverPreview,
 } from './render/canvas';
 import { showComboPop, updateHud } from './ui/hud';
-import { bindRetryButton, fillGameOver, showScreen, tryShare } from './ui/overlays';
+import {
+  bindHomeButton,
+  bindRetryButton,
+  fillGameOver,
+  showScreen,
+  tryShare,
+} from './ui/overlays';
 import { attachWindowPointerDrag, resolveTrayBoardDrop } from './input/dragPlace';
 import { centerGridCursor, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
 
@@ -387,12 +393,15 @@ document.getElementById('btn-howto-ok')!.addEventListener('click', () => {
   }
 });
 
-document.getElementById('btn-home')!.addEventListener('click', () => {
+function returnHome(): void {
   gameover.hidden = true;
   refreshHome();
   showScreen('home');
   maybeShowA2hs();
-});
+}
+
+const homePrimaryCta = document.getElementById('btn-endless')!;
+bindHomeButton(document.getElementById('btn-home')!, homePrimaryCta, returnHome);
 
 bindRetryButton(document.getElementById('btn-retry')!, board, () => {
   engine.restart();
@@ -402,12 +411,7 @@ bindRetryButton(document.getElementById('btn-retry')!, board, () => {
   layout();
 });
 
-document.getElementById('btn-go-home')!.addEventListener('click', () => {
-  gameover.hidden = true;
-  refreshHome();
-  showScreen('home');
-  maybeShowA2hs();
-});
+bindHomeButton(document.getElementById('btn-go-home')!, homePrimaryCta, returnHome);
 
 document.getElementById('btn-share')!.addEventListener('click', () => {
   void tryShare(state());

@@ -6,6 +6,18 @@ export function showScreen(id: string): void {
   });
 }
 
+/** Return focus to the primary Home action after leaving play. */
+export function bindHomeButton(
+  homeButton: HTMLElement,
+  primaryCta: HTMLElement,
+  onHome: () => void,
+): void {
+  homeButton.addEventListener('click', () => {
+    onHome();
+    primaryCta.focus();
+  });
+}
+
 /** Run Retry, then return focus to the playable board after the overlay is hidden. */
 export function bindRetryButton(
   retryButton: HTMLElement,

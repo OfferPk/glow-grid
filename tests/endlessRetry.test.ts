@@ -4,7 +4,7 @@ import { createGame, type Engine, type GameState } from '../src/game/engine.ts';
 import { GRID_SIZE, PIECE_DEFS } from '../src/game/pieces.ts';
 import { getBestScore, getGamesPlayed } from '../src/game/persist.ts';
 import { mulberry32 } from '../src/game/rng.ts';
-import { bindRetryButton, fillGameOver } from '../src/ui/overlays.ts';
+import { bindHomeButton, bindRetryButton, fillGameOver } from '../src/ui/overlays.ts';
 
 function installSyntheticStorage(): Map<string, string> {
   const store = new Map<string, string>();
@@ -123,6 +123,69 @@ describe('synthetic Endless game-over → Retry audit', () => {
     const overlay = makeOverlay();
     fillGameOver(overlay.element, tiedEnd);
     expect(overlay.badge.hidden).toBe(true);
+  });
+
+  it('does not label a 390-point game as NEW BEST against a saved 50000', () => {
+    const store = installSyntheticStorage();
+    const savedBest = '50000';
+    const dailyRecord = JSON.stringify({ score: 270, finished: true });
+    const streak = JSON.stringify({ count: 4, lastCompletedKey: '2026-09-29' });
+    store.set('glowgrid:v1:bestScore', savedBest);
+    store.set('glowgrid:v1:daily:2026-09-30', dailyRecord);
+    store.set('glowgrid:v1:streak', streak);
+
+    const gameOver = finishSyntheticRun(
+      createGame({ mode: 'endless', rng: mulberry32(100) }),
+    );
+    expect(gameOver.score).toBe(390);
+    expect(gameOver.status).toBe('gameover');
+    expect(gameOver.bestScore).toBe(50000);
+    expect(gameOver.newBest).toBe(false);
+
+    const overlay = makeOverlay();
+    fillGameOver(overlay.element, gameOver);
+    expect(overlay.badge.hidden).toBe(true);
+    expect(store.get('glowgrid:v1:bestScore')).toBe(savedBest);
+    expect(store.get('glowgrid:v1:daily:2026-09-30')).toBe(dailyRecord);
+    expect(store.get('glowgrid:v1:streak')).toBe(streak);
+  });
+
+  it('returns keyboard-activated Home focus to Play Endless with Daily next in Tab order', () => {
+    document.body.innerHTML = `
+      <section data-screen="home" hidden>
+        <button id="btn-endless">Play Endless</button>
+        <button id="btn-daily">Daily Challenge</button>
+        <button id="btn-mute-home">Sound</button>
+        <button id="btn-howto">How to play</button>
+      </section>
+      <section data-screen="play">
+        <div id="gameover"><button id="btn-go-home">Home</button></div>
+      </section>
+      <div id="a2hs" hidden><button id="a2hs-ok">OK</button></div>`;
+    const home = document.querySelector<HTMLElement>('[data-screen="home"]')!;
+    const play = document.querySelector<HTMLElement>('[data-screen="play"]')!;
+    const a2hs = document.getElementById('a2hs')!;
+    const homeButton = document.getElementById('btn-go-home')!;
+    const primaryCta = document.getElementById('btn-endless')!;
+
+    bindHomeButton(homeButton, primaryCta, () => {
+      home.hidden = false;
+      play.hidden = true;
+      a2hs.hidden = false;
+    });
+    homeButton.focus();
+    homeButton.click();
+
+    expect(document.activeElement).toBe(primaryCta);
+    const tabStops = [...document.querySelectorAll<HTMLElement>('button, [tabindex]')].filter(
+      (element) =>
+        element.tabIndex >= 0 &&
+        !element.hasAttribute('disabled') &&
+        !element.closest('[hidden]'),
+    );
+    expect(tabStops[tabStops.indexOf(primaryCta) + 1]).toBe(
+      document.getElementById('btn-daily'),
+    );
   });
 
   it('returns focus to the board on Retry and leaves records and Daily state unchanged', () => {
