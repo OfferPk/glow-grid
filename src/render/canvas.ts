@@ -3,6 +3,7 @@
 import {
   absoluteCells,
   canPlace,
+  previewClears,
   type GameState,
 } from '../game/engine';
 import { GRID_SIZE, getPieceCells, type TraySlot } from '../game/pieces';
@@ -16,6 +17,7 @@ const EMPTY_CELL = '#111827';
 const GLOW_FLASH = 'rgba(34, 211, 238, 0.45)';
 const PREVIEW_OK = 'rgba(163, 230, 53, 0.35)';
 const PREVIEW_BAD = 'rgba(251, 113, 133, 0.35)';
+const PREVIEW_CLEAR = 'rgba(250, 204, 21, 0.18)';
 
 export type ClearFlash = {
   rows: number[];
@@ -119,6 +121,20 @@ export function drawBoard(
         hover.row,
         hover.col,
       );
+      if (ok) {
+        const projected = previewClears(
+          state.grid,
+          slot.def,
+          slot.rotation,
+          hover.row,
+          hover.col,
+        );
+        if (projected) {
+          ctx.fillStyle = PREVIEW_CLEAR;
+          for (const r of projected.rows) ctx.fillRect(0, r * cell, size, cell);
+          for (const c of projected.cols) ctx.fillRect(c * cell, 0, cell, size);
+        }
+      }
       ctx.fillStyle = ok ? PREVIEW_OK : PREVIEW_BAD;
       for (const { r, c } of cells) {
         if (r < 0 || c < 0 || r >= GRID_SIZE || c >= GRID_SIZE) continue;

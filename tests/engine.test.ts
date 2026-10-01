@@ -7,6 +7,7 @@ import {
   anyTrayPieceFits,
   pieceFitsAnywhere,
   absoluteCells,
+  previewClears,
   drawPieceIds,
 } from '../src/game/engine.ts';
 import { GRID_SIZE, PIECE_DEFS, cellsForRotation, rotateCells, getPieceById } from '../src/game/pieces.ts';
@@ -158,6 +159,50 @@ describe('place / clear / no gravity', () => {
     const next = applyClears(grid, cellSet);
     expect(next[5]![3]).toBe('#y'); // still there — no gravity
     expect(next[7]!.every((c) => c == null)).toBe(true);
+  });
+});
+
+describe('projected clear preview', () => {
+  function emptyGrid(): (string | null)[][] {
+    return Array.from({ length: GRID_SIZE }, () =>
+      Array.from({ length: GRID_SIZE }, () => null),
+    );
+  }
+
+  it('predicts a completed row without mutating the current board', () => {
+    const grid = emptyGrid();
+    for (let c = 1; c < GRID_SIZE; c++) grid[0]![c] = '#occupied';
+    const original = grid.map((row) => row.slice());
+
+    expect(previewClears(grid, getPieceById('DOT'), 0, 0, 0)).toEqual({
+      rows: [0],
+      cols: [],
+    });
+    expect(grid).toEqual(original);
+  });
+
+  it('predicts intersecting row and column clears once each', () => {
+    const grid = emptyGrid();
+    for (let i = 1; i < GRID_SIZE; i++) {
+      grid[0]![i] = '#row';
+      grid[i]![0] = '#column';
+    }
+
+    expect(previewClears(grid, getPieceById('DOT'), 0, 0, 0)).toEqual({
+      rows: [0],
+      cols: [0],
+    });
+  });
+
+  it('returns no clear for a valid quiet move and no preview for an invalid move', () => {
+    const grid = emptyGrid();
+    expect(previewClears(grid, getPieceById('DOT'), 0, 4, 4)).toEqual({
+      rows: [],
+      cols: [],
+    });
+
+    grid[0]![0] = '#occupied';
+    expect(previewClears(grid, getPieceById('DOT'), 0, 0, 0)).toBeNull();
   });
 });
 

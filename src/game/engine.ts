@@ -178,6 +178,24 @@ export function findClears(grid: (string | null)[][]): {
   return { rows, cols, cellSet };
 }
 
+/** Predict rows and columns cleared by a legal piece placement without mutating the board. */
+export function previewClears(
+  grid: (string | null)[][],
+  def: PieceDef,
+  rotation: Rot,
+  originR: number,
+  originC: number,
+): { rows: number[]; cols: number[] } | null {
+  if (!canPlace(grid, def, rotation, originR, originC)) return null;
+
+  const projected = cloneGrid(grid);
+  for (const { r, c } of absoluteCells(def, rotation, originR, originC)) {
+    projected[r]![c] = def.color;
+  }
+  const { rows, cols } = findClears(projected);
+  return { rows, cols };
+}
+
 export function applyClears(
   grid: (string | null)[][],
   cellSet: Set<string>,

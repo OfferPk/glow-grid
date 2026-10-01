@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Projected clear preview
+- Valid placement previews now softly highlight any row or column they would clear before the piece is placed.
+
 ### Placement feedback
 - Rejected placements now show a brief, static status message that is announced to assistive technology and behaves consistently for pointer and keyboard play.
 
