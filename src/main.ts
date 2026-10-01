@@ -31,7 +31,7 @@ import {
   tryShare,
 } from './ui/overlays';
 import { attachWindowPointerDrag, resolveTrayBoardDrop } from './input/dragPlace';
-import { centerGridCursor, isCancelKey, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
+import { attachTrayShortcutListener, centerGridCursor, isCancelKey, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
 import {
   createPlacementFeedback,
   INVALID_PLACEMENT_MESSAGE,
@@ -347,6 +347,20 @@ trayCanvases.forEach((cv, i) => {
     selectTrayForKeyboard(i);
   });
 });
+
+attachTrayShortcutListener(
+  document,
+  (index) => {
+    const playScreen = document.querySelector<HTMLElement>('[data-screen="play"]');
+    return Boolean(
+      playScreen &&
+      !playScreen.hidden &&
+      state().status === 'playing' &&
+      state().tray[index],
+    );
+  },
+  selectTrayForKeyboard,
+);
 
 document.getElementById('btn-rotate')!.addEventListener('click', () => {
   if (selectedTray === null) {

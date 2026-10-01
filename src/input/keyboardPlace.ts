@@ -8,6 +8,66 @@ export function centerGridCursor(gridSize = GRID_SIZE): GridCursor {
   return { row: center, col: center };
 }
 
+/** Map the 1–3 tray shortcuts to zero-based tray slots. */
+export function trayShortcutIndex(key: string, code = ''): number | null {
+  const indexFor = (value: string): number | null => {
+    switch (value) {
+      case '1':
+      case 'Digit1':
+      case 'Numpad1':
+        return 0;
+      case '2':
+      case 'Digit2':
+      case 'Numpad2':
+        return 1;
+      case '3':
+      case 'Digit3':
+      case 'Numpad3':
+        return 2;
+      default:
+        return null;
+    }
+  };
+
+  return indexFor(key) ?? indexFor(code);
+}
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!target || !('nodeType' in target) || (target as Node).nodeType !== 1) {
+    return false;
+  }
+  const element = target as HTMLElement;
+  return (
+    element.isContentEditable ||
+    element.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])') !== null
+  );
+}
+
+/**
+ * Listen in document capture so shortcuts also work when the browser delivers
+ * keydown at the document rather than bubbling from the focused canvas. Keep
+ * text-entry controls and modified/repeating key presses out of game controls.
+ */
+export function attachTrayShortcutListener(
+  documentTarget: Document,
+  canSelect: (index: number) => boolean,
+  onSelect: (index: number) => void,
+): () => void {
+  const onKeyDown = (event: KeyboardEvent): void => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.repeat) return;
+    if (isEditableTarget(event.target) || isEditableTarget(documentTarget.activeElement)) return;
+
+    const index = trayShortcutIndex(event.key, event.code);
+    if (index === null || !canSelect(index)) return;
+
+    event.preventDefault();
+    onSelect(index);
+  };
+
+  documentTarget.addEventListener('keydown', onKeyDown, true);
+  return () => documentTarget.removeEventListener('keydown', onKeyDown, true);
+}
+
 /** Move one cell with the arrow keys, clamping the preview to the board. */
 export function moveGridCursor(
   cursor: GridCursor,

@@ -41,7 +41,7 @@
             <li><strong>Clear</strong> — fill a full row or column (no gravity — blocks stay put).</li>
             <li><strong>Plan</strong> — completed rows or columns glow gold while you preview a valid placement.</li>
             <li><strong>Combos</strong> — clear on consecutive placements to raise multiplier (up to ×5).</li>
-            <li><strong>Keyboard</strong> — focus a tray piece and press Enter or Space, then use arrow keys to position it and Enter or Space to place. Press Escape to cancel and return to the tray, or R to rotate.</li>
+            <li><strong>Keyboard</strong> — press 1, 2, or 3 to select a tray piece, or focus a piece and press Enter or Space. Use arrow keys to position it and Enter or Space to place. Press Escape to cancel and return to the tray, or R to rotate.</li>
           </ul>
           <button type="button" class="btn primary" id="btn-howto-ok">Got it</button>
         </div>
@@ -58,14 +58,14 @@
           <button type="button" class="icon-btn" id="btn-home" aria-label="Home">⌂</button>
         </header>
         <div class="board-wrap">
-          <canvas id="board" width="400" height="400" tabindex="0" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space R" aria-label="Game board. Select a piece, use arrow keys to move its preview, then press Enter or Space to place it."></canvas>
+          <canvas id="board" width="400" height="400" tabindex="0" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space R 1 2 3" aria-label="Game board. Select a piece, use arrow keys to move its preview, then press Enter or Space to place it."></canvas>
           <div id="combo-pop" class="combo-pop" aria-hidden="true"></div>
           <div id="placement-feedback" class="placement-feedback" role="status" aria-live="polite" hidden></div>
         </div>
         <div class="tray-bar">
-          <canvas data-tray="0" width="88" height="88" role="button" tabindex="0" aria-keyshortcuts="Enter Space" aria-label="Piece 1" aria-pressed="false" aria-disabled="false"></canvas>
-          <canvas data-tray="1" width="88" height="88" role="button" tabindex="0" aria-keyshortcuts="Enter Space" aria-label="Piece 2" aria-pressed="false" aria-disabled="false"></canvas>
-          <canvas data-tray="2" width="88" height="88" role="button" tabindex="0" aria-keyshortcuts="Enter Space" aria-label="Piece 3" aria-pressed="false" aria-disabled="false"></canvas>
+          <canvas data-tray="0" width="88" height="88" role="button" tabindex="0" aria-keyshortcuts="Enter Space 1" aria-label="Piece 1" aria-pressed="false" aria-disabled="false"></canvas>
+          <canvas data-tray="1" width="88" height="88" role="button" tabindex="0" aria-keyshortcuts="Enter Space 2" aria-label="Piece 2" aria-pressed="false" aria-disabled="false"></canvas>
+          <canvas data-tray="2" width="88" height="88" role="button" tabindex="0" aria-keyshortcuts="Enter Space 3" aria-label="Piece 3" aria-pressed="false" aria-disabled="false"></canvas>
           <button type="button" id="btn-rotate" title="Rotate (R)">↻ Rotate</button>
         </div>
         <div id="keyboard-status" class="sr-only" role="status" aria-live="polite"></div>
