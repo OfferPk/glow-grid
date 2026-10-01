@@ -36,6 +36,7 @@ import {
   createPlacementFeedback,
   INVALID_PLACEMENT_MESSAGE,
 } from './ui/placementFeedback';
+import { trayPieceAriaLabel } from './ui/trayAccessibility';
 
 let engine: Engine = createGame({ mode: 'endless' });
 let selectedTray: number | null = null;
@@ -96,6 +97,7 @@ function render(): void {
   const ctx = board.getContext('2d')!;
   drawBoard(ctx, st, cellSize, flash, hover, performance.now());
   trayCanvases.forEach((cv, i) => {
+    cv.setAttribute('aria-label', trayPieceAriaLabel(i, st.tray[i]!));
     cv.setAttribute('aria-pressed', String(selectedTray === i));
     cv.setAttribute('aria-disabled', String(st.tray[i] === null));
     drawTraySlot(cv, st.tray[i]!, selectedTray === i);
