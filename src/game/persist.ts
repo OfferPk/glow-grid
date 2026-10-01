@@ -2,7 +2,7 @@
 
 const PREFIX = 'glowgrid:v1:';
 
-export type Settings = { muted: boolean };
+export type Settings = { muted: boolean; trayBreath: boolean };
 export type DailyRecord = { score: number; finished: boolean };
 
 function canUseStorage(): boolean {
@@ -56,17 +56,17 @@ export function incrementGamesPlayed(): number {
 
 export function getSettings(): Settings {
   const raw = readRaw('settings');
-  if (!raw) return { muted: false };
+  if (!raw) return { muted: false, trayBreath: false };
   try {
     const parsed = JSON.parse(raw) as Settings;
-    return { muted: Boolean(parsed.muted) };
+    return { muted: Boolean(parsed.muted), trayBreath: Boolean(parsed.trayBreath) };
   } catch {
-    return { muted: false };
+    return { muted: false, trayBreath: false };
   }
 }
 
-export function setSettings(settings: Settings): void {
-  writeRaw('settings', JSON.stringify(settings));
+export function setSettings(settings: Partial<Settings>): void {
+  writeRaw('settings', JSON.stringify({ ...getSettings(), ...settings }));
 }
 
 export function getDailyRecord(dailyKey: string): DailyRecord | null {

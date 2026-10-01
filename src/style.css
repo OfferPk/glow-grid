@@ -75,6 +75,12 @@ html, body {
 .btn.secondary { border: 1px solid var(--cyan); background: #1a2744; }
 .btn.ghost { background: transparent; color: var(--muted); font-weight: 500; }
 .btn.tiny { width: auto; min-height: 36px; padding: 0.35rem 0.75rem; font-size: 0.85rem; margin: 0; }
+.tray-breath-setting {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 44px; margin: 0.25rem 0; color: var(--muted); font-size: 0.9rem;
+  cursor: pointer;
+}
+.tray-breath-setting input { width: 18px; height: 18px; accent-color: var(--cyan); }
 .howto-list { text-align: left; color: var(--muted); line-height: 1.55; padding-left: 1.1rem; }
 .howto-list strong { color: var(--cyan); }
 .sr-only {
@@ -122,6 +128,20 @@ html, body {
   width: 100%; max-width: min(100%, 72vh); aspect-ratio: 1;
   touch-action: none; border-radius: 10px;
 }
+.tray-breath-cues {
+  position: absolute; inset: 0; overflow: visible; pointer-events: none; z-index: 4;
+}
+.tray-breath-cues[hidden] { display: none !important; }
+.tray-breath-ring {
+  position: absolute; width: 14px; height: 14px; border: 2px solid var(--cyan);
+  left: var(--tray-breath-left, 0px); top: var(--tray-breath-top, 0px);
+  border-radius: 50%; pointer-events: none; animation: trayBreath 10s linear both;
+}
+@keyframes trayBreath {
+  0% { opacity: 0.55; transform: scale(0.55); }
+  40% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0.55; transform: scale(0.55); }
+}
 .tray-bar {
   width: 100%; display: flex; align-items: center; justify-content: center;
   gap: 0.45rem; flex: 0 0 auto; min-height: 100px; padding: 0.25rem 0;
@@ -159,6 +179,7 @@ html, body {
     opacity: 1;
     transform: translate(-50%, 0);
   }
+  .tray-breath-ring { animation: none; opacity: 0.75; transform: scale(1); }
 }
 @keyframes comboPop {
   0% { opacity: 0; transform: translate(-50%, 12px); }

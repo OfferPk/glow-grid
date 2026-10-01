@@ -38,14 +38,16 @@ import {
 } from './ui/placementFeedback';
 import { announceClear } from './ui/clearAnnouncement';
 import { trayPieceAriaLabel } from './ui/trayAccessibility';
-
+import { boardSizeWithCueClearance, positionTrayBreathCue, showTrayBreathCue, trayWasRefreshed } from './ui/trayBreath';
 let engine: Engine = createGame({ mode: 'endless' });
 let selectedTray: number | null = null;
 let keyboardCursor = centerGridCursor();
 let cellSize = 40;
 let flash: ClearFlash | null = null;
 let hover: HoverPreview = null;
-let muted = getSettings().muted;
+const initialSettings = getSettings();
+let muted = initialSettings.muted;
+let trayBreath = initialSettings.trayBreath;
 let dragTray: number | null = null;
 let pointerPlaced = false;
 let howtoEntry: HowtoEntry = 'home';
@@ -61,6 +63,9 @@ const gameover = document.getElementById('gameover')!;
 const trayCanvases = [
   ...document.querySelectorAll<HTMLCanvasElement>('[data-tray]'),
 ].sort((a, b) => Number(a.dataset.tray) - Number(b.dataset.tray));
+const trayBreathToggle = document.getElementById('setting-tray-breath') as HTMLInputElement;
+const trayBreathCues = document.getElementById('tray-breath-cues')!;
+trayBreathToggle.checked = trayBreath;
 
 function state(): GameState {
   return engine.getState();
@@ -86,10 +91,11 @@ function layout(): void {
   const wrap = board.parentElement!;
   const byWidth = Math.floor(wrap.clientWidth);
   const byVh = Math.floor(window.innerHeight * 0.72);
-  const css = Math.max(0, Math.min(byWidth, byVh || byWidth));
+  const css = boardSizeWithCueClearance(byWidth, byVh, wrap.clientHeight);
   const { cell } = resizeCanvas(board, css);
   const live = board.getBoundingClientRect().width;
   cellSize = live > 0 ? live / 8 : cell;
+  positionTrayBreathCue(trayBreathCues, board, wrap);
   render();
 }
 
@@ -140,6 +146,9 @@ function attemptPlace(trayIndex: number, row: number, col: number): boolean {
   const prev = state();
   const result = engine.place(trayIndex, row, col);
   if (result.ok) {
+    if (trayBreath && trayWasRefreshed(prev, result.state)) {
+      showTrayBreathCue(trayBreathCues);
+    }
     placementFeedback.clear();
     announceClear(keyboardStatus, prev, result.state);
     onPlaceSuccess(prev, result.state, result.cellsCleared);
@@ -408,6 +417,11 @@ function toggleMute(): void {
   setSettings({ muted });
   updateMuteButtons();
 }
+
+trayBreathToggle.addEventListener('change', () => {
+  trayBreath = trayBreathToggle.checked;
+  setSettings({ trayBreath });
+});
 
 document.getElementById('btn-mute')!.addEventListener('click', toggleMute);
 document.getElementById('btn-mute-home')!.addEventListener('click', toggleMute);
