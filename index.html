@@ -12,8 +12,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="/glow-grid/manifest.webmanifest" />
     <title>GlowGrid</title>
-    <script type="module" crossorigin src="/glow-grid/assets/index-k3oIcIsN.js"></script>
-    <link rel="stylesheet" crossorigin href="/glow-grid/assets/index-D4p6B9-n.css">
+    <script type="module" crossorigin src="/glow-grid/assets/index-3gmM0ptQ.js"></script>
+    <link rel="stylesheet" crossorigin href="/glow-grid/assets/index-zqx9iTl7.css">
   </head>
   <body>
     <div id="app">
@@ -30,6 +30,10 @@
           </button>
           <p class="daily-meta" id="daily-meta"></p>
           <button type="button" class="btn ghost" id="btn-mute-home">🔊 Sound</button>
+          <label class="tray-breath-setting">
+            <input type="checkbox" id="setting-tray-breath" />
+            <span>Tray Breath cue</span>
+          </label>
           <button type="button" class="btn ghost" id="btn-howto">How to play</button>
         </div>
       </section>
@@ -61,6 +65,7 @@
         </header>
         <div class="board-wrap">
           <canvas id="board" width="400" height="400" tabindex="0" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space R 1 2 3" aria-label="Game board. Select a piece, use arrow keys to move its preview, then press Enter or Space to place it."></canvas>
+          <div id="tray-breath-cues" class="tray-breath-cues" aria-hidden="true" hidden></div>
           <div id="combo-pop" class="combo-pop" aria-hidden="true"></div>
           <div id="placement-feedback" class="placement-feedback" role="status" aria-live="polite" hidden></div>
         </div>
