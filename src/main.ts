@@ -36,6 +36,7 @@ import {
   createPlacementFeedback,
   INVALID_PLACEMENT_MESSAGE,
 } from './ui/placementFeedback';
+import { announceClear } from './ui/clearAnnouncement';
 import { trayPieceAriaLabel } from './ui/trayAccessibility';
 
 let engine: Engine = createGame({ mode: 'endless' });
@@ -140,6 +141,7 @@ function attemptPlace(trayIndex: number, row: number, col: number): boolean {
   const result = engine.place(trayIndex, row, col);
   if (result.ok) {
     placementFeedback.clear();
+    announceClear(keyboardStatus, prev, result.state);
     onPlaceSuccess(prev, result.state, result.cellsCleared);
     return true;
   }
@@ -326,7 +328,11 @@ board.addEventListener('keydown', (e) => {
       hover = null;
       render();
     }
-    if (placed) announceKeyboard(`Piece ${trayIndex + 1} placed.`);
+    if (placed) {
+      const lastClear = state().lastClear;
+      const clearedLines = (lastClear?.rows.length ?? 0) + (lastClear?.cols.length ?? 0);
+      if (clearedLines === 0) announceKeyboard(`Piece ${trayIndex + 1} placed.`);
+    }
   }
 });
 
