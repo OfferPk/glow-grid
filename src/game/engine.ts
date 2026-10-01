@@ -212,8 +212,11 @@ export function applyClears(
 
 export type Engine = {
   getState: () => GameState;
-  /** Peek next N piece ids from the bag (for tests) without mutating play state permanently — uses internal rng copy via sequence log. */
+  /** Return the piece ids consumed by the active deterministic timeline (for tests). */
   getPieceSequence: () => string[];
+  canUndoPlacement: () => boolean;
+  /** Restore the latest placement while leaving durable records and Best untouched. */
+  undoLastPlacement: () => GameState | null;
   rotateTraySlot: (index: number) => GameState;
   setTrayRotation: (index: number, rotation: Rot) => GameState;
   place: (trayIndex: number, originR: number, originC: number) => PlaceResult;
@@ -231,6 +234,11 @@ export type CreateGameOptions = {
   skipPersist?: boolean;
 };
 
+type UndoSnapshot = {
+  state: GameState;
+  pieceSequenceIndex: number;
+};
+
 export function createGame(opts: CreateGameOptions = {}): Engine {
   const mode: GameMode = opts.mode ?? 'endless';
   const dailyKey =
@@ -242,10 +250,15 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
       ? createDailyRng(dailyKey)
       : createEndlessRng());
 
-  const pieceSequence: string[] = [];
+  const pieceHistory: PieceDef[] = [];
+  let pieceSequenceIndex = 0;
   const trackedPick = (): PieceDef => {
-    const p = pickPiece(rng);
-    pieceSequence.push(p.id);
+    let p = pieceHistory[pieceSequenceIndex];
+    if (!p) {
+      p = pickPiece(rng);
+      pieceHistory.push(p);
+    }
+    pieceSequenceIndex += 1;
     return p;
   };
 
@@ -279,6 +292,7 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
     linesClearedTotal: 0,
     lastClear: null,
   };
+  let undoSnapshot: UndoSnapshot | null = null;
 
   const finishIfNeeded = (): void => {
     if (state.status !== 'playing') return;
@@ -304,7 +318,25 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
 
   const api: Engine = {
     getState: () => cloneState(state),
-    getPieceSequence: () => [...pieceSequence],
+    getPieceSequence: () => pieceHistory.slice(0, pieceSequenceIndex).map((piece) => piece.id),
+    canUndoPlacement: () => state.status === 'playing' && undoSnapshot !== null,
+
+    undoLastPlacement(): GameState | null {
+      if (state.status !== 'playing' || !undoSnapshot) return null;
+
+      const snapshot = undoSnapshot;
+      const bestScore = Math.max(state.bestScore, snapshot.state.bestScore);
+      state = {
+        ...cloneState(snapshot.state),
+        bestScore,
+        // The move may have permanently improved Best; rewinding score must not
+        // claim the restored, lower score is still a new record.
+        newBest: snapshot.state.newBest && snapshot.state.score >= bestScore,
+      };
+      pieceSequenceIndex = snapshot.pieceSequenceIndex;
+      undoSnapshot = null;
+      return cloneState(state);
+    },
 
     rotateTraySlot(index: number): GameState {
       if (state.status !== 'playing') return cloneState(state);
@@ -336,6 +368,11 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
       if (!canPlace(state.grid, slot.def, slot.rotation, originR, originC)) {
         return { ok: false, reason: 'invalid' };
       }
+
+      undoSnapshot = {
+        state: cloneState(state),
+        pieceSequenceIndex,
+      };
 
       let grid = cloneGrid(state.grid);
       const cells = absoluteCells(slot.def, slot.rotation, originR, originC);
@@ -404,7 +441,9 @@ export function createGame(opts: CreateGameOptions = {}): Engine {
         (mode === 'daily' && dailyKey
           ? createDailyRng(dailyKey)
           : createEndlessRng());
-      pieceSequence.length = 0;
+      pieceHistory.length = 0;
+      pieceSequenceIndex = 0;
+      undoSnapshot = null;
       // rebind trackedFill's rng closure — recreate by reassigning via local
       // Since trackedPick closes over `rng` let variable, restart reassigns rng — OK.
       const restartedBest = (): number => {

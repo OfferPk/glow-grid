@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  attachPracticeRewindShortcutListener,
   attachTrayShortcutListener,
   centerGridCursor,
   isCancelKey,
@@ -49,6 +50,48 @@ function keydown(
 }
 
 describe('keyboard board placement', () => {
+  it('uses U to rewind only while a placement is undoable', () => {
+    let canRewind = false;
+    let rewinds = 0;
+    cleanups.push(
+      attachPracticeRewindShortcutListener(
+        document,
+        () => canRewind,
+        () => { rewinds += 1; },
+      ),
+    );
+
+    const unavailable = keydown(document.body, 'u');
+    expect(unavailable.defaultPrevented).toBe(false);
+    expect(rewinds).toBe(0);
+
+    canRewind = true;
+    const rewind = keydown(document.body, 'U');
+    expect(rewind.defaultPrevented).toBe(true);
+    expect(rewinds).toBe(1);
+
+    const modified = keydown(document.body, 'u', { ctrlKey: true });
+    expect(modified.defaultPrevented).toBe(false);
+    expect(rewinds).toBe(1);
+  });
+
+  it('does not trigger rewind from an editable field or a repeated keydown', () => {
+    let rewinds = 0;
+    cleanups.push(
+      attachPracticeRewindShortcutListener(
+        document,
+        () => true,
+        () => { rewinds += 1; },
+      ),
+    );
+    document.body.innerHTML = '<input id="editor">';
+    const editor = document.getElementById('editor')!;
+    editor.focus();
+    expect(keydown(editor, 'u').defaultPrevented).toBe(false);
+    expect(keydown(document.body, 'u', { repeat: true }).defaultPrevented).toBe(false);
+    expect(rewinds).toBe(0);
+  });
+
   it('starts the preview near the center of the 8×8 board', () => {
     expect(centerGridCursor()).toEqual({ row: 3, col: 3 });
   });

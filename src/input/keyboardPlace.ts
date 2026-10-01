@@ -68,6 +68,25 @@ export function attachTrayShortcutListener(
   return () => documentTarget.removeEventListener('keydown', onKeyDown, true);
 }
 
+/** Listen for the optional one-step Practice Rewind shortcut (U). */
+export function attachPracticeRewindShortcutListener(
+  documentTarget: Document,
+  canRewind: () => boolean,
+  onRewind: () => void,
+): () => void {
+  const onKeyDown = (event: KeyboardEvent): void => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.repeat) return;
+    if (isEditableTarget(event.target) || isEditableTarget(documentTarget.activeElement)) return;
+    if (event.key.toLowerCase() !== 'u' || !canRewind()) return;
+
+    event.preventDefault();
+    onRewind();
+  };
+
+  documentTarget.addEventListener('keydown', onKeyDown, true);
+  return () => documentTarget.removeEventListener('keydown', onKeyDown, true);
+}
+
 /** Move one cell with the arrow keys, clamping the preview to the board. */
 export function moveGridCursor(
   cursor: GridCursor,

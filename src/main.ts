@@ -31,7 +31,7 @@ import {
   tryShare,
 } from './ui/overlays';
 import { attachWindowPointerDrag, resolveTrayBoardDrop } from './input/dragPlace';
-import { attachTrayShortcutListener, centerGridCursor, isCancelKey, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
+import { attachPracticeRewindShortcutListener, attachTrayShortcutListener, centerGridCursor, isCancelKey, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
 import {
   createPlacementFeedback,
   INVALID_PLACEMENT_MESSAGE,
@@ -65,6 +65,7 @@ const trayCanvases = [
 ].sort((a, b) => Number(a.dataset.tray) - Number(b.dataset.tray));
 const trayBreathToggle = document.getElementById('setting-tray-breath') as HTMLInputElement;
 const trayBreathCues = document.getElementById('tray-breath-cues')!;
+const rewindButton = document.getElementById('btn-rewind') as HTMLButtonElement;
 trayBreathToggle.checked = trayBreath;
 
 function state(): GameState {
@@ -110,6 +111,7 @@ function render(): void {
     drawTraySlot(cv, st.tray[i]!, selectedTray === i);
   });
   updateHud(hud, st);
+  rewindButton.disabled = st.status !== 'playing' || !engine.canUndoPlacement();
   if (st.status === 'gameover') {
     fillGameOver(gameover, st);
     gameover.hidden = false;
@@ -233,6 +235,33 @@ function cancelDrag(): void {
   hover = null;
   render();
 }
+
+function rewindLastPlacement(): boolean {
+  if (!engine.canUndoPlacement()) return false;
+  const restored = engine.undoLastPlacement();
+  if (!restored) return false;
+
+  detachActiveDrag?.();
+  detachActiveDrag = null;
+  dragTray = null;
+  pointerPlaced = false;
+  selectedTray = null;
+  hover = null;
+  flash = null;
+  placementFeedback.clear();
+  comboPop.textContent = '';
+  comboPop.classList.remove('pop');
+  trayBreathCues.replaceChildren();
+  trayBreathCues.hidden = true;
+  gameover.hidden = true;
+  render();
+  announceKeyboard('Practice rewind restored the previous board, tray, score, combo, and line-clear state. Best is unchanged.');
+  return true;
+}
+
+rewindButton.addEventListener('click', () => {
+  rewindLastPlacement();
+});
 
 /** Detach for active window-tracked tray→board drag (GG-002). */
 let detachActiveDrag: (() => void) | null = null;
@@ -377,6 +406,22 @@ attachTrayShortcutListener(
     );
   },
   selectTrayForKeyboard,
+);
+
+attachPracticeRewindShortcutListener(
+  document,
+  () => {
+    const playScreen = document.querySelector<HTMLElement>('[data-screen="play"]');
+    return Boolean(
+      playScreen &&
+      !playScreen.hidden &&
+      state().status === 'playing' &&
+      engine.canUndoPlacement(),
+    );
+  },
+  () => {
+    rewindLastPlacement();
+  },
 );
 
 document.getElementById('btn-rotate')!.addEventListener('click', () => {

@@ -45,7 +45,7 @@
             <li><strong>Clear</strong> — fill a full row or column (no gravity — blocks stay put).</li>
             <li><strong>Plan</strong> — completed rows or columns glow gold while you preview a valid placement.</li>
             <li><strong>Combos</strong> — clear on consecutive placements to raise multiplier (up to ×5).</li>
-            <li><strong>Keyboard</strong> — press 1, 2, or 3 to select a tray piece, or focus a piece and press Enter or Space. Use arrow keys to position it and Enter or Space to place. Press Escape to cancel and return to the tray, or R to rotate.</li>
+            <li><strong>Keyboard</strong> — press 1, 2, or 3 to select a tray piece, or focus a piece and press Enter or Space. Use arrow keys to position it and Enter or Space to place. Press Escape to cancel and return to the tray, R to rotate, or U to rewind the latest placement.</li>
           </ul>
           <button type="button" class="btn primary" id="btn-howto-ok">Got it</button>
         </div>
@@ -58,11 +58,12 @@
           <div class="hud-stat"><span class="lbl">Best</span><span data-best>0</span></div>
           <div class="hud-stat"><span class="lbl">Combo</span><span data-combo>—</span></div>
           <div class="hud-stat"><span class="badge" data-mode>Endless</span></div>
+          <button type="button" class="icon-btn rewind-btn" id="btn-rewind" aria-label="Practice rewind last placement" aria-keyshortcuts="U" title="Practice Rewind (U)" disabled>↶ Undo</button>
           <button type="button" class="icon-btn" id="btn-mute" aria-label="Mute">🔊</button>
           <button type="button" class="icon-btn" id="btn-home" aria-label="Home">⌂</button>
         </header>
         <div class="board-wrap">
-          <canvas id="board" width="400" height="400" tabindex="0" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space R 1 2 3" aria-label="Game board. Select a piece, use arrow keys to move its preview, then press Enter or Space to place it."></canvas>
+          <canvas id="board" width="400" height="400" tabindex="0" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space R U 1 2 3" aria-label="Game board. Select a piece, use arrow keys to move its preview, then press Enter or Space to place it."></canvas>
           <div id="tray-breath-cues" class="tray-breath-cues" aria-hidden="true" hidden></div>
           <div id="combo-pop" class="combo-pop" aria-hidden="true"></div>
           <div id="placement-feedback" class="placement-feedback" role="status" aria-live="polite" hidden></div>

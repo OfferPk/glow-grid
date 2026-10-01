@@ -64,7 +64,7 @@ html, body {
   background: var(--btn);
 }
 .btn:active { transform: scale(0.98); }
-.btn:focus-visible, #board:focus-visible, .tray-bar canvas:focus-visible {
+.btn:focus-visible, .icon-btn:focus-visible, #board:focus-visible, .tray-bar canvas:focus-visible {
   outline: 2px solid var(--lime);
   outline-offset: 3px;
 }
@@ -120,6 +120,8 @@ html, body {
   background: var(--btn); border: 1px solid #1e3a5f; border-radius: 10px;
   min-width: 44px; min-height: 44px; font-size: 1.1rem; cursor: pointer; color: var(--text);
 }
+.rewind-btn { min-width: 68px; padding: 0 0.4rem; font-size: 0.75rem; font-weight: 700; }
+.rewind-btn:disabled { opacity: 0.45; cursor: default; }
 .board-wrap {
   width: 100%; flex: 1 1 auto; min-height: 0;
   display: flex; align-items: center; justify-content: center; position: relative;
