@@ -32,6 +32,10 @@ import {
 } from './ui/overlays';
 import { attachWindowPointerDrag, resolveTrayBoardDrop } from './input/dragPlace';
 import { centerGridCursor, isCancelKey, isConfirmKey, moveGridCursor } from './input/keyboardPlace';
+import {
+  createPlacementFeedback,
+  INVALID_PLACEMENT_MESSAGE,
+} from './ui/placementFeedback';
 
 let engine: Engine = createGame({ mode: 'endless' });
 let selectedTray: number | null = null;
@@ -48,6 +52,9 @@ const board = document.getElementById('board') as HTMLCanvasElement;
 const hud = document.getElementById('hud')!;
 const comboPop = document.getElementById('combo-pop')!;
 const keyboardStatus = document.getElementById('keyboard-status')!;
+const placementFeedback = createPlacementFeedback(
+  document.getElementById('placement-feedback')!,
+);
 const gameover = document.getElementById('gameover')!;
 const trayCanvases = [
   ...document.querySelectorAll<HTMLCanvasElement>('[data-tray]'),
@@ -130,9 +137,11 @@ function attemptPlace(trayIndex: number, row: number, col: number): boolean {
   const prev = state();
   const result = engine.place(trayIndex, row, col);
   if (result.ok) {
+    placementFeedback.clear();
     onPlaceSuccess(prev, result.state, result.cellsCleared);
     return true;
   }
+  placementFeedback.show(INVALID_PLACEMENT_MESSAGE);
   render();
   return false;
 }
@@ -144,6 +153,7 @@ function announceKeyboard(message: string): void {
 /** Keyboard piece selection moves focus to the board for immediate placement navigation. */
 function selectTrayForKeyboard(index: number): void {
   if (state().status !== 'playing' || !state().tray[index]) return;
+  placementFeedback.clear();
   selectedTray = index;
   keyboardCursor = centerGridCursor();
   hover = { trayIndex: index, row: keyboardCursor.row, col: keyboardCursor.col };
@@ -159,6 +169,7 @@ function startMode(mode: 'endless' | 'daily'): void {
     mode,
     dailyKey: mode === 'daily' ? dailyKeyKarachi() : undefined,
   });
+  placementFeedback.clear();
   selectedTray = null;
   keyboardCursor = centerGridCursor();
   gameover.hidden = true;
@@ -217,6 +228,7 @@ function beginTrayDrag(trayIndex: number, e: PointerEvent): void {
   // End any prior drag session
   detachActiveDrag?.();
   detachActiveDrag = null;
+  placementFeedback.clear();
   selectedTray = trayIndex;
   dragTray = trayIndex;
   pointerPlaced = false;
@@ -283,6 +295,7 @@ board.addEventListener('keydown', (e) => {
   if (isCancelKey(e.key)) {
     e.preventDefault();
     const trayIndex = selectedTray;
+    placementFeedback.clear();
     selectedTray = null;
     hover = null;
     render();
@@ -311,11 +324,7 @@ board.addEventListener('keydown', (e) => {
       hover = null;
       render();
     }
-    announceKeyboard(
-      placed
-        ? `Piece ${trayIndex + 1} placed.`
-        : `That placement does not fit. Move the preview with the arrow keys and try again.`,
-    );
+    if (placed) announceKeyboard(`Piece ${trayIndex + 1} placed.`);
   }
 });
 
@@ -328,6 +337,7 @@ trayCanvases.forEach((cv, i) => {
   });
   cv.addEventListener('click', () => {
     if (state().status !== 'playing' || !state().tray[i]) return;
+    placementFeedback.clear();
     selectedTray = i;
     render();
   });
@@ -415,6 +425,7 @@ bindHomeButton(document.getElementById('btn-home')!, homePrimaryCta, returnHome)
 
 bindRetryButton(document.getElementById('btn-retry')!, board, () => {
   engine.restart();
+  placementFeedback.clear();
   selectedTray = null;
   gameover.hidden = true;
   flash = null;

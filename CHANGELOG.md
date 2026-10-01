@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Placement feedback
+- Rejected placements now show a brief, static status message that is announced to assistive technology and behaves consistently for pointer and keyboard play.
+
 ### Keyboard placement (GG-008)
 - Keyboard users can focus a tray piece, move its board preview with the arrow keys, and place it with Enter or Space; R rotates the selected piece.
 - Added focus indicators, live placement announcements, and regression tests for cursor movement and confirmation keys.

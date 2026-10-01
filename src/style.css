@@ -143,6 +143,15 @@ html, body {
   text-shadow: 0 0 16px rgba(163, 230, 53, 0.85);
   opacity: 0; pointer-events: none; z-index: 5;
 }
+.placement-feedback {
+  position: absolute; left: 50%; bottom: 0.55rem; transform: translateX(-50%);
+  z-index: 6; width: max-content; max-width: min(92%, 400px);
+  padding: 0.55rem 0.8rem; border: 1px solid rgba(251, 113, 133, 0.8);
+  border-radius: 10px; background: rgba(15, 23, 42, 0.96); color: #fecdd3;
+  font-size: 0.9rem; line-height: 1.35; text-align: center;
+  box-shadow: 0 0 18px rgba(251, 113, 133, 0.18); pointer-events: none;
+}
+.placement-feedback[hidden] { display: none !important; }
 .combo-pop.pop { animation: comboPop 0.7s ease forwards; }
 @media (prefers-reduced-motion: reduce) {
   .combo-pop.pop {
